@@ -114,45 +114,6 @@ class CloudinaryService
     }
 
     /**
-     * Upload external image after processing
-     * returns image detail with colors
-     */
-    public static function uploadAndGetExternalImageDetail($request)
-    {
-        $imagePath = $request->imageUrl;
-        list($width, $height) = getimagesize($imagePath);
-        if ($height > $width) {
-            if ($width > 810) {
-                $transformations = [
-                    'width' => 810, 'height' => 1040,
-                    'crop' => 'crop', 'gravity' => 'center'
-                ];
-            } else {
-                $transformations = [
-                    'width' => 810, 'height' => 1040, 'crop' => 'fill_pad',
-                    'gravity' => 'auto', 'background' => 'white',
-                ];
-            }
-        } else {
-            $transformations = [
-                'width' => 810, 'height' => 1040, 'crop' => 'fill_pad',
-                'gravity' => 'auto', 'background' => 'white',
-            ];
-        }
-        // Perform the image upload
-        $uploadOptions = [
-            'transformation' => $transformations, 'use_filename' => true,
-            'folder' => 'external', 'overwrite' => true, 'resource_type' => 'image'
-        ];
-        $uploadResult = (new UploadApi())->upload($imagePath, $uploadOptions);
-        if (isset($uploadResult['public_id'])) {
-            return self::getImageDetail($uploadResult['public_id']);
-        } else {
-            throw new NotFoundException('Failed to process image', 500);
-        }
-    }
-
-    /**
      * Destroy Resource
      */
     public static function destroyResource($publicId)

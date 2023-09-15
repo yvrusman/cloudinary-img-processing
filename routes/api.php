@@ -21,6 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('/upload',  [CloudinaryController::class, 'upload']);
 Route::get('/get-image', [CloudinaryController::class, 'getImageDetail']);
-Route::get('/get-external-image-info', [CloudinaryController::class, 'getExternalImageDetail']);
 Route::get('/image-resize', [CloudinaryController::class, 'imageResize']);
 Route::delete('/delete', [CloudinaryController::class, 'destroy']);

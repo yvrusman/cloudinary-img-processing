@@ -48,17 +48,6 @@ class CloudinaryController extends Controller
         }
     }
 
-    public function getExternalImageDetail(Request $request)
-    {
-        try {
-            $result = CloudinaryService::uploadAndGetExternalImageDetail($request);
-            return JsonApiResponse::ofData($result, 'success');
-        } catch (Exception $e) {
-            Log::error("Error occurred while processing image", [$e]);
-            return JsonApiResponse::ofInternalError($e->getMessage());
-        }
-    }
-
     public function destroy(Request $request)
     {
         try {
