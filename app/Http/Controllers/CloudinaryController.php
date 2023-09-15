@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 class CloudinaryController extends Controller
 {
 
-    public function getImageDetail(Request $request)
+    public function getImageDetail(Request $request): JsonResponse
     {
         try {
             $image = CloudinaryService::getImageDetail($request->publicId);
@@ -25,7 +25,7 @@ class CloudinaryController extends Controller
 
     }
 
-    public function imageResize(Request $request)
+    public function imageResize(Request $request): JsonResponse
     {
         try {
             $image = CloudinaryService::resizeImage($request);
@@ -37,7 +37,7 @@ class CloudinaryController extends Controller
 
     }
 
-    public function upload(Request $request)
+    public function upload(Request $request): JsonResponse
     {
         try {
             $result = CloudinaryService::uploadImage($request);
@@ -48,7 +48,7 @@ class CloudinaryController extends Controller
         }
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request): JsonResponse
     {
         try {
             $response = CloudinaryService::destroyResource($request->publicId);
