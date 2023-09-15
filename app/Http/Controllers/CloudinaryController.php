@@ -131,4 +131,41 @@ class CloudinaryController extends Controller
             return response(['status' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
+    public function getExternalImageDetail(Request $request)
+    {
+        try {
+            $imagePath = $uploadData = $request->imageUrl;
+            list($width, $height) = getimagesize($imagePath);
+            if ($height > $width) {
+                if ($width > 810) {
+                    $transformations = [
+                        'width' => 810, 'height' => 1040,
+                        'crop' => 'crop', 'gravity' => 'center'
+                    ];
+                } else {
+                    $transformations = [
+                        'width' => 810, 'height' => 1040, 'crop' => 'fill_pad',
+                        'gravity' => 'auto', 'background' => 'white',
+                    ];
+                }
+            } else {
+                $transformations = [
+                    'width' => 810, 'height' => 1040, 'crop' => 'fill_pad',
+                    'gravity' => 'auto', 'background' => 'white',
+                ];
+            }
+            // Perform the image upload
+            $uploadResult = (new UploadApi())->upload($uploadData, ['folder' => 'external', 'transformation' => $transformations]);
+// Check if the upload was successful
+            if (isset($uploadResult['public_id'])) {
+                $image = (new AdminApi())->asset($uploadResult['public_id'], ['colors' => true]);
+                return response()->json(['status' => true, 'message' => 'success', 'data' => $image]);
+            } else {
+                return response()->json(['status' => false, 'message' => 'Something went wrong.']);
+            }
+        } catch (\Exception $e) {
+            return response(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
 }
