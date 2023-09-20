@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/upload',  [CloudinaryController::class, 'upload']);
+Route::post('/get-images-detail',  [CloudinaryController::class, 'bulkUpload']);
 Route::get('/get-image', [CloudinaryController::class, 'getImageDetail']);
 Route::get('/image-resize', [CloudinaryController::class, 'imageResize']);
 Route::delete('/delete', [CloudinaryController::class, 'destroy']);

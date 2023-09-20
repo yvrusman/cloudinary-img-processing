@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\CloudinaryRequest;
 use App\Services\Cloudinary\CloudinaryService;
 use App\Utils\JsonApiResponse;
 use Exception;
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 class CloudinaryController extends Controller
 {
 
-    public function getImageDetail(Request $request): JsonResponse
+    public function getImageDetail(CloudinaryRequest $request): JsonResponse
     {
         try {
             $image = CloudinaryService::getImageDetail($request->publicId);
@@ -25,7 +25,7 @@ class CloudinaryController extends Controller
 
     }
 
-    public function imageResize(Request $request): JsonResponse
+    public function imageResize(CloudinaryRequest $request): JsonResponse
     {
         try {
             $image = CloudinaryService::resizeImage($request);
@@ -37,7 +37,7 @@ class CloudinaryController extends Controller
 
     }
 
-    public function upload(Request $request): JsonResponse
+    public function upload(CloudinaryRequest $request): JsonResponse
     {
         try {
             $result = CloudinaryService::uploadImage($request);
@@ -48,7 +48,18 @@ class CloudinaryController extends Controller
         }
     }
 
-    public function destroy(Request $request): JsonResponse
+    public function bulkUpload(CloudinaryRequest $request): JsonResponse
+    {
+        try {
+            $result = CloudinaryService::bulkUploadImages($request);
+            return JsonApiResponse::ofData($result, 'success');
+        } catch (Exception $e) {
+            Log::error("Error occurred while uploading images", [$e]);
+            return JsonApiResponse::ofInternalError($e->getMessage());
+        }
+    }
+
+    public function destroy(CloudinaryRequest $request): JsonResponse
     {
         try {
             $response = CloudinaryService::destroyResource($request->publicId);

@@ -74,9 +74,11 @@ class CloudinaryService
             $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $imagePath = $file->path();
             $uploadData = $file->getRealPath();
+            $isFileSelected = true;
         } else {
             $imagePath = $uploadData = $request->imageUrl;
-            $fileName = '';
+            $fileName = pathinfo(parse_url($imagePath, PHP_URL_PATH), PATHINFO_FILENAME);
+            $isFileSelected = false;
         }
         list($width, $height) = getimagesize($imagePath);
         if ($height > $width) {
@@ -97,11 +99,8 @@ class CloudinaryService
                 'gravity' => 'auto', 'background' => 'white',
             ];
         }
-        $uploadOptions = ['transformation' => $transformations, 'overwrite' => true, 'resource_type' => 'image'];
-        if ($fileName) {
-            $uploadOptions['public_id'] = $fileName;
-        } else {
-            $uploadOptions['use_filename'] = true;
+        $uploadOptions = ['transformation' => $transformations, 'overwrite' => true, 'resource_type' => 'image', 'public_id' => $fileName];
+        if (!$isFileSelected) {
             $uploadOptions['folder'] = 'external';
         }
         // Perform the image upload
@@ -111,6 +110,47 @@ class CloudinaryService
         } else {
             throw new NotFoundException('Failed to upload image', 500);
         }
+    }
+
+
+    /**
+     * Upload images after processing
+     * returns images detail with colors
+     */
+    public static function bulkUploadImages($request)
+    {
+        $responseArr = [];
+        $uploadOptions = ['overwrite' => true, 'resource_type' => 'image', 'folder' => 'external'];
+        foreach ($request->images as $image) {
+            $fileName = pathinfo(parse_url($image, PHP_URL_PATH), PATHINFO_FILENAME);
+            list($width, $height) = getimagesize($image);
+            if ($height > $width) {
+                if ($width > 810) {
+                    $transformations = [
+                        'width' => 810, 'height' => 1040,
+                        'crop' => 'crop', 'gravity' => 'center'
+                    ];
+                } else {
+                    $transformations = [
+                        'width' => 810, 'height' => 1040, 'crop' => 'fill_pad',
+                        'gravity' => 'auto', 'background' => 'white',
+                    ];
+                }
+            } else {
+                $transformations = [
+                    'width' => 810, 'height' => 1040, 'crop' => 'fill_pad',
+                    'gravity' => 'auto', 'background' => 'white',
+                ];
+            }
+            $uploadOptions['transformation'] = $transformations;
+            $uploadOptions['public_id'] = $fileName;
+            // Perform the image upload
+            $uploadResult = (new UploadApi())->upload($image, $uploadOptions);
+            if (isset($uploadResult['public_id'])) {
+                $responseArr[] = self::getImageDetail($uploadResult['public_id']);
+            }
+        }
+        return $responseArr;
     }
 
     /**
